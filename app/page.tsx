@@ -1,65 +1,131 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import styled from 'styled-components';
+import Link from 'next/link';
+import HolidayCard from '@/components/HolidayCard';
+import { Holiday } from '@/app/interfaces/holiday';
+
+const PageContainer = styled.main`
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+`;
+
+const Header = styled.header`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 1rem;
+`;
+
+const SearchSection = styled.section`
+  background: #f9f9f9;
+  padding: 2rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  text-align: center;
+`;
+
+const StyledInput = styled.input`
+  padding: 0.8rem;
+  font-size: 1rem;
+  border: 2px solid #333;
+  border-radius: 8px;
+  margin-right: 1rem;
+  outline: none;
+
+  &:focus {
+    border-color: #0070f3;
+  }
+`;
+
+const Grid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+`;
+
+const NavLink = styled(Link)`
+  color: #0070f3;
+  text-decoration: none;
+  font-weight: bold;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+export default function DateSearchPage() {
+  const [date, setDate] = useState('');
+  const [results, setResults] = useState<Holiday[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleDateChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedDate = e.target.value; // Format: YYYY-MM-DD
+    setDate(selectedDate);
+    
+    if (!selectedDate) return;
+
+    // Requirement 3: Don't show loading forever
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Split the date string to get month and day for the API call
+      const [year, month, day] = selectedDate.split('-');
+      
+      const response = await fetch(`/api/holidays?month=${parseInt(month)}&day=${parseInt(day)}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch holidays');
+      }
+
+      setResults(data);
+    } catch (err: any) {
+      // Requirement 3: Proper error handling
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <PageContainer>
+      <Header>
+        <h1>📅 Holiday Finder</h1>
+        <NavLink href="/list">View All Holidays →</NavLink>
+      </Header>
+
+      <SearchSection>
+        <h2>Pick a date to see what's being celebrated</h2>
+        <StyledInput 
+          type="date" 
+          value={date} 
+          onChange={handleDateChange} 
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        {loading && <p>Checking the calendar...</p>}
+        {error && <p style={{ color: 'red' }}>⚠️ {error}</p>}
+      </SearchSection>
+
+      <Grid>
+        {results.length > 0 ? (
+          results.map((holiday, index) => (
+            <HolidayCard 
+              key={index} 
+              {...holiday} 
+              showDate={true} 
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          ))
+        ) : (
+          !loading && date && <p>No holidays found for this specific date in the US.</p>
+        )}
+      </Grid>
+    </PageContainer>
   );
 }
