@@ -101,19 +101,20 @@ export default function HolidayListPage() {
         </div>
       )}
 
-      <Grid>
-        {holidays.map((holiday, index) => (
-          <div key={index} onClick={() => handleReveal(index)}>
-            <HolidayCard 
-              name={holiday.name}
-              description={holiday.description}
-              date={holiday.date}
-              type={holiday.type}
-              showDate={revealedIndex === index} 
-            />
-          </div>
-        ))}
-      </Grid>
+    <Grid>
+    {holidays.map((holiday, index) => (
+        <div 
+        key={index} 
+        onClick={() => handleReveal(index)} 
+        style={{ display: 'flex' }}
+        >
+        <HolidayCard 
+            {...holiday} 
+            showDate={revealedIndex === index} 
+        />
+        </div>
+    ))}
+    </Grid>
       
       {!loading && holidays.length === 0 && !error && (
         <p style={{ textAlign: 'center' }}>No holidays found.</p>
