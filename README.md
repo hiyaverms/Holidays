@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Holidays
+ 
+A Next.js app for browsing U.S. holidays. You can list every holiday this year, look up holidays for a specific date, and open a detail page for any holiday. The data comes from the [Calendarific API](https://calendarific.com/).
+ 
+🔗 **Live demo:** (https://holidays-dzbf.vercel.app/)
+ 
+## Features
+ 
+- A full list of this year's U.S. holidays
+- Search by month and day
+- Dynamic detail pages (`/holiday/[id]`)
+- Its own API route (`/api/holidays`), so the API key stays on the server
+## Tech stack
+ 
+- Next.js 16 (App Router) + TypeScript
+- Tailwind CSS
+- Calendarific REST API
+## Project structure
+ 
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+app/
+├── page.tsx                # home and date search
+├── list/page.tsx           # all holidays
+├── holiday/[id]/page.tsx   # holiday details
+└── api/holidays/route.ts   # server-side proxy to Calendarific
+lib/calendar.ts             # API client
+components/HolidayCard.tsx
+```
+ 
+## Run locally
+ 
+```bash
+npm install
+echo "CALENDARIFIC_API_KEY=your_key" > .env.local
+npm run dev
+# open http://localhost:3000
+```
+ 
